@@ -31,171 +31,176 @@ import java.util.regex.Pattern;
  */
 @Service
 public class SiteSettingServiceImpl implements SiteSettingService {
-	@Autowired
-	SiteSettingMapper siteSettingMapper;
-	@Autowired
-	RedisService redisService;
+    @Autowired
+    SiteSettingMapper siteSettingMapper;
+    @Autowired
+    RedisService redisService;
 
-	private static final Pattern PATTERN = Pattern.compile("\"(.*?)\"");
+    private static final Pattern PATTERN = Pattern.compile("\"(.*?)\"");
 
-	@Override
-	public Map<String, List<SiteSetting>> getList() {
-		List<SiteSetting> siteSettings = siteSettingMapper.getList();
-		Map<String, List<SiteSetting>> map = new HashMap<>();
-		List<SiteSetting> type1 = new ArrayList<>();
-		List<SiteSetting> type2 = new ArrayList<>();
-		List<SiteSetting> type3 = new ArrayList<>();
-		for (SiteSetting s : siteSettings) {
-			switch (s.getType()) {
-				case 1:
-					type1.add(s);
-					break;
-				case 2:
-					type2.add(s);
-					break;
-				case 3:
-					type3.add(s);
-					break;
-				default:
-					break;
-			}
-		}
-		map.put("type1", type1);
-		map.put("type2", type2);
-		map.put("type3", type3);
-		return map;
-	}
+    @Override
+    public Map<String, List<SiteSetting>> getList() {
+        List<SiteSetting> siteSettings = siteSettingMapper.getList();
+        Map<String, List<SiteSetting>> map = new HashMap<>();
+        List<SiteSetting> type1 = new ArrayList<>();
+        List<SiteSetting> type2 = new ArrayList<>();
+        List<SiteSetting> type3 = new ArrayList<>();
+        List<SiteSetting> type4 = new ArrayList<>();
+        for (SiteSetting s : siteSettings) {
+            switch (s.getType()) {
+                case 1:
+                    type1.add(s);
+                    break;
+                case 2:
+                    type2.add(s);
+                    break;
+                case 3:
+                    type3.add(s);
+                    break;
+                case 4:
+                    type4.add(s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        map.put("type1", type1);
+        map.put("type2", type2);
+        map.put("type3", type3);
+        map.put("type4", type4);
+        return map;
+    }
 
-	@Override
-	public Map<String, Object> getSiteInfo() {
-		String redisKey = RedisKeyConstants.SITE_INFO_MAP;
-		Map<String, Object> siteInfoMapFromRedis = redisService.getMapByValue(redisKey);
-		if (siteInfoMapFromRedis != null) {
-			return siteInfoMapFromRedis;
-		}
-		List<SiteSetting> siteSettings = siteSettingMapper.getList();
-		Map<String, Object> map = new HashMap<>();
-		Map<String, Object> siteInfo = new HashMap<>();
-		List<Badge> badges = new ArrayList<>();
-		Introduction introduction = new Introduction();
-		List<Favorite> favorites = new ArrayList<>();
-		List<String> rollTexts = new ArrayList<>();
-		for (SiteSetting s : siteSettings) {
-			switch (s.getType()) {
-				case 1:
-					if (SiteSettingConstants.COPYRIGHT.equals(s.getNameEn())) {
-						Copyright copyright = JacksonUtils.readValue(s.getValue(), Copyright.class);
-						siteInfo.put(s.getNameEn(), copyright);
-					} else {
-						siteInfo.put(s.getNameEn(), s.getValue());
-					}
-					break;
-				case 2:
-					switch (s.getNameEn()) {
-						case SiteSettingConstants.AVATAR:
-							introduction.setAvatar(s.getValue());
-							break;
-						case SiteSettingConstants.NAME:
-							introduction.setName(s.getValue());
-							break;
-						case SiteSettingConstants.GITHUB:
-							introduction.setGithub(s.getValue());
-							break;
-						case SiteSettingConstants.TELEGRAM:
-							introduction.setTelegram(s.getValue());
-							break;
-						case SiteSettingConstants.QQ:
-							introduction.setQq(s.getValue());
-							break;
-						case SiteSettingConstants.BILIBILI:
-							introduction.setBilibili(s.getValue());
-							break;
-						case SiteSettingConstants.NETEASE:
-							introduction.setNetease(s.getValue());
-							break;
-						case SiteSettingConstants.EMAIL:
-							introduction.setEmail(s.getValue());
-							break;
-						case SiteSettingConstants.FAVORITE:
-							Favorite favorite = JacksonUtils.readValue(s.getValue(), Favorite.class);
-							favorites.add(favorite);
-							break;
-						case SiteSettingConstants.ROLL_TEXT:
-							Matcher m = PATTERN.matcher(s.getValue());
-							while (m.find()) {
-								rollTexts.add(m.group(1));
-							}
-							break;
-						default:
-							break;
-					}
-					break;
-				case 3:
-					Badge badge = JacksonUtils.readValue(s.getValue(), Badge.class);
-					badges.add(badge);
-					break;
-				default:
-					break;
-			}
-		}
-		introduction.setFavorites(favorites);
-		introduction.setRollText(rollTexts);
-		map.put("introduction", introduction);
-		map.put("siteInfo", siteInfo);
-		map.put("badges", badges);
-		redisService.saveMapToValue(redisKey, map);
-		return map;
-	}
+    @Override
+    public Map<String, Object> getSiteInfo() {
+        String redisKey = RedisKeyConstants.SITE_INFO_MAP;
+        Map<String, Object> siteInfoMapFromRedis = redisService.getMapByValue(redisKey);
+        if (siteInfoMapFromRedis != null) {
+            return siteInfoMapFromRedis;
+        }
+        List<SiteSetting> siteSettings = siteSettingMapper.getList();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> siteInfo = new HashMap<>();
+        List<Badge> badges = new ArrayList<>();
+        Introduction introduction = new Introduction();
+        List<Favorite> favorites = new ArrayList<>();
+        List<String> rollTexts = new ArrayList<>();
+        for (SiteSetting s : siteSettings) {
+            switch (s.getType()) {
+                case 1:
+                    if (SiteSettingConstants.COPYRIGHT.equals(s.getNameEn())) {
+                        Copyright copyright = JacksonUtils.readValue(s.getValue(), Copyright.class);
+                        siteInfo.put(s.getNameEn(), copyright);
+                    } else {
+                        siteInfo.put(s.getNameEn(), s.getValue());
+                    }
+                    break;
+                case 2:
+                    switch (s.getNameEn()) {
+                        case SiteSettingConstants.AVATAR:
+                            introduction.setAvatar(s.getValue());
+                            break;
+                        case SiteSettingConstants.NAME:
+                            introduction.setName(s.getValue());
+                            break;
+                        case SiteSettingConstants.GITHUB:
+                            introduction.setGithub(s.getValue());
+                            break;
+                        case SiteSettingConstants.TELEGRAM:
+                            introduction.setTelegram(s.getValue());
+                            break;
+                        case SiteSettingConstants.QQ:
+                            introduction.setQq(s.getValue());
+                            break;
+                        case SiteSettingConstants.BILIBILI:
+                            introduction.setBilibili(s.getValue());
+                            break;
+                        case SiteSettingConstants.NETEASE:
+                            introduction.setNetease(s.getValue());
+                            break;
+                        case SiteSettingConstants.EMAIL:
+                            introduction.setEmail(s.getValue());
+                            break;
+                        case SiteSettingConstants.FAVORITE:
+                            Favorite favorite = JacksonUtils.readValue(s.getValue(), Favorite.class);
+                            favorites.add(favorite);
+                            break;
+                        case SiteSettingConstants.ROLL_TEXT:
+                            Matcher m = PATTERN.matcher(s.getValue());
+                            while (m.find()) {
+                                rollTexts.add(m.group(1));
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 3:
+                    Badge badge = JacksonUtils.readValue(s.getValue(), Badge.class);
+                    badges.add(badge);
+                    break;
+                default:
+                    break;
+            }
+        }
+        introduction.setFavorites(favorites);
+        introduction.setRollText(rollTexts);
+        map.put("introduction", introduction);
+        map.put("siteInfo", siteInfo);
+        map.put("badges", badges);
+        redisService.saveMapToValue(redisKey, map);
+        return map;
+    }
 
-	@Override
-	public String getWebTitleSuffix() {
-		return siteSettingMapper.getWebTitleSuffix();
-	}
+    @Override
+    public String getWebTitleSuffix() {
+        return siteSettingMapper.getWebTitleSuffix();
+    }
 
-	@Override
-	public void updateSiteSetting(List<LinkedHashMap> siteSettings, List<Integer> deleteIds) {
-		for (Integer id : deleteIds) {
-			//删除
-			deleteOneSiteSettingById(id);
-		}
-		for (LinkedHashMap s : siteSettings) {
-			SiteSetting siteSetting = JacksonUtils.convertValue(s, SiteSetting.class);
-			if (siteSetting.getId() != null) {
-				//修改
-				updateOneSiteSetting(siteSetting);
-			} else {
-				//添加
-				saveOneSiteSetting(siteSetting);
-			}
-		}
-		deleteSiteInfoRedisCache();
-	}
+    @Override
+    public void updateSiteSetting(List<LinkedHashMap> siteSettings, List<Integer> deleteIds) {
+        for (Integer id : deleteIds) {
+            //删除
+            deleteOneSiteSettingById(id);
+        }
+        for (LinkedHashMap s : siteSettings) {
+            SiteSetting siteSetting = JacksonUtils.convertValue(s, SiteSetting.class);
+            if (siteSetting.getId() != null) {
+                //修改
+                updateOneSiteSetting(siteSetting);
+            } else {
+                //添加
+                saveOneSiteSetting(siteSetting);
+            }
+        }
+        deleteSiteInfoRedisCache();
+    }
 
-	@Transactional
-	public void saveOneSiteSetting(SiteSetting siteSetting) {
-		if (siteSettingMapper.saveSiteSetting(siteSetting) != 1) {
-			throw new PersistenceException("配置添加失败");
-		}
-	}
+    @Transactional
+    public void saveOneSiteSetting(SiteSetting siteSetting) {
+        if (siteSettingMapper.saveSiteSetting(siteSetting) != 1) {
+            throw new PersistenceException("配置添加失败");
+        }
+    }
 
-	@Transactional
-	public void updateOneSiteSetting(SiteSetting siteSetting) {
-		if (siteSettingMapper.updateSiteSetting(siteSetting) != 1) {
-			throw new PersistenceException("配置修改失败");
-		}
-	}
+    @Transactional
+    public void updateOneSiteSetting(SiteSetting siteSetting) {
+        if (siteSettingMapper.updateSiteSetting(siteSetting) != 1) {
+            throw new PersistenceException("配置修改失败");
+        }
+    }
 
-	@Transactional
-	public void deleteOneSiteSettingById(Integer id) {
-		if (siteSettingMapper.deleteSiteSettingById(id) != 1) {
-			throw new PersistenceException("配置删除失败");
-		}
-	}
+    @Transactional
+    public void deleteOneSiteSettingById(Integer id) {
+        if (siteSettingMapper.deleteSiteSettingById(id) != 1) {
+            throw new PersistenceException("配置删除失败");
+        }
+    }
 
-	/**
-	 * 删除站点信息缓存
-	 */
-	private void deleteSiteInfoRedisCache() {
-		redisService.deleteCacheByKey(RedisKeyConstants.SITE_INFO_MAP);
-	}
+    /**
+     * 删除站点信息缓存
+     */
+    private void deleteSiteInfoRedisCache() {
+        redisService.deleteCacheByKey(RedisKeyConstants.SITE_INFO_MAP);
+    }
 }
