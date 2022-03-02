@@ -2,7 +2,7 @@
   <div :style="styles">
     <!-- 上传文件组件 -->
     <el-upload
-        :class="['avatar-uploader',hideUploadBtnVisable?'hide-upload-btn':'']"
+        :class="[hideUploadBtnVisable?'hide-upload-btn':'', className]"
         ref="upload"
         :action="getActionUrl"
         :list-type="(uploadType=='1'||uploadType==1)?'text':'picture-card'"
@@ -53,7 +53,7 @@ export default {
       myHeaders:{}
     };
   },
-  props: ["tip", "action", "limit", "multiple", "fileUrls","uploadType","styles","showFileList","index"],
+  props: ["tip", "action", "limit", "multiple", "fileUrls","uploadType","styles","showFileList","index",'className'],
   mounted() {
     this.init();
     this.myHeaders= {
@@ -171,9 +171,9 @@ export default {
 };
 </script>
 <style lang="scss">
-    // .avatar-uploader{
-    //     text-align: left;
-    // }
+    .text-left{
+        text-align: left;
+    }
     .hide-upload-btn .el-upload--picture-card{
         display: none;
     }

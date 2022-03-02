@@ -9,10 +9,10 @@
                     <el-form label-position="right" label-width="100px">
                         <el-form-item :label="item.nameZh" v-for="item in typeMap.type1" :key="item.id">
                             <div v-if="item.nameEn=='footerImgUrl'">
-                                <file-upload :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="footerImgUrlUploadSuccess" class="upload-class"></file-upload>
+                                <file-upload className="text-left" :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="footerImgUrlUploadSuccess" class="upload-class"></file-upload>
                             </div>
                             <div v-if="item.nameEn=='reward'">
-                                <file-upload :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="rewardUrlUploadSuccess" class="upload-class"></file-upload>
+                                <file-upload className="text-left" :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="rewardUrlUploadSuccess" class="upload-class"></file-upload>
                             </div>
                             <el-input v-else v-model="item.value" size="mini"></el-input>
                         </el-form-item>
@@ -35,13 +35,13 @@
                                 </el-col>
                             </div>
                             <div v-else-if="item.nameEn=='avatar'">
-                                <file-upload :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="avatarUploadSuccess" class="upload-class"></file-upload>
+                                <file-upload className="text-left" :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="avatarUploadSuccess" class="upload-class"></file-upload>
                             </div>
                             <div v-else>
                                 <el-input v-model="item.value" size="mini"></el-input>
                             </div>
                         </el-form-item>
-						<el-button type="primary" size="mini" icon="el-icon-plus" @click="addFavorite">添加自定义</el-button>
+                        <el-button type="primary" size="mini" icon="el-icon-plus" @click="addFavorite">添加自定义</el-button>
                     </el-form>
                 </el-card>
             </el-col>
@@ -76,25 +76,24 @@
             </el-card>
         </el-row>
 
-		<el-row style="margin-top: 20px">
-			<el-card>
-				<div slot="header">
-                    <span>首页图片</span>
-					<div>
-						数量: <el-input v-model="siteIndexPicCount" type="number" />
-					</div>
+        <el-row style="margin-top: 20px">
+            <el-card>
+                <div slot="header" class="site-index-pic-header">
+                    <div>首页图片</div>
+                    <div class="site-index-pic-btn">
+                        数量:
+                        <el-input-number v-model="siteIndexPicCount" @change="siteIndexPicCountChange" :min="1" />
+                    </div>
                 </div>
-				<div v-for="item in typeMap.type4" :key="item.id">
-					<el-carousel v-if="item.nameEn=='siteIndexPic'" :interval="4000" type="card" height="200px" :autoplay="false">
-						<el-carousel-item v-for="(pic,i) in item.value.split(',')" :key="i">
-							<div>
-								<file-upload :showFileList="true" action="upload/local/file" :index="i" :style="uploadStyle" :limit="1" :fileUrls="pic" @change="siteIndexPicUploadSuccess" class="upload-class"></file-upload>
-							</div>
-						</el-carousel-item>
-					</el-carousel>
-				</div>
-			</el-card>
-		</el-row>
+                <div v-for="item in typeMap.type4" :key="item.id">
+                    <el-carousel v-if="item.nameEn=='siteIndexPic'" :interval="4000" type="card" height="200px" :autoplay="false">
+                        <el-carousel-item v-for="(pic,i) in siteIndexPicList" :key="i">
+                            <file-upload :showFileList="true" action="upload/local/file" :index="i" :style="uploadStyle" :limit="1" :fileUrls="pic" @change="siteIndexPicUploadSuccess" class="upload-class"></file-upload>
+                        </el-carousel-item>
+                    </el-carousel>
+                </div>
+            </el-card>
+        </el-row>
 
         <div style="text-align: right;margin-top: 30px">
             <el-button type="primary" icon="el-icon-check" @click="submit">保存</el-button>
@@ -114,7 +113,9 @@ export default {
     components: { Breadcrumb, fileUpload },
     data() {
         return {
-			siteIndexPicCount:0,
+            siteIndex: 0,
+            siteIndexPicCount: 0,
+            siteIndexPicList: [],
             uploadStyle: {
                 "text-align": "center",
             },
@@ -147,8 +148,8 @@ export default {
             }
         },
         /**
-* 页脚图片上传成功
-*/
+        * 页脚图片上传成功
+        */
         rewardUrlUploadSuccess(urls) {
             for (let index = 0; index < this.typeMap.type1.length; index++) {
                 if (this.typeMap.type1[index].nameEn == "reward") {
@@ -156,15 +157,41 @@ export default {
                 }
             }
         },
-		siteIndexPicUploadSuccess(result){
-			res.data.type4.forEach(item => {
-				if(item.nameEn=='siteIndexPic'){
-					var urls = item.value.split(",");
-					urls[result["index"]] = result["url"];
-					item.value = urls.join(',');
-				}
+        siteIndexPicUploadSuccess(result) {
+            res.data.type4.forEach(item => {
+                if (item.nameEn == 'siteIndexPic') {
+                    var urls = item.value.split(",");
+                    urls[result["index"]] = result["url"];
+                    item.value = urls.join(',');
+                }
             })
-		},
+        },
+        /**
+        * 首页图片数量变化
+         */
+        siteIndexPicCountChange(currentValue, oldValue) {
+            if(currentValue < oldValue){
+                //添加一张图
+                this.$confirm('确定删除最后一张图片吗?', '温馨提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.siteIndexPicList.pop();
+                    this.$message({
+                        type: 'success',
+                        message: '删除成功!'
+                    });
+                }).catch(() => {
+                    // this.$message({
+                    //     type: 'info',
+                    //     message: '已取消删除'
+                    // });
+                });
+            }else{
+                this.siteIndexPicList.push("");
+            }
+        },
         getData() {
             getSiteSettingData().then(res => {
                 this.typeMap = res.data;
@@ -172,12 +199,15 @@ export default {
                 res.data.type3.forEach(item => {
                     item.value = JSON.parse(item.value)
                 })
-				res.data.type4.forEach(item => {
-					if(item.nameEn=='siteIndexPic'){
-                    	item.value = ",,";
-					}
+                res.data.type4.forEach(item => {
+                    if (item.nameEn == 'siteIndexPic') {
+                        item.value = ",,";
+                        if (item.value) {
+                            this.siteIndexPicList = item.value.split(",");
+                        }
+                    }
                 })
-				console.log("typeMap",this.typeMap);
+                console.log("typeMap", this.typeMap);
             })
         },
         addFavorite() {
@@ -262,4 +292,10 @@ export default {
 </script>
 
 <style scoped>
+.site-index-pic-header {
+    display: flex;
+}
+.site-index-pic-btn {
+    margin-left: auto;
+}
 </style>
