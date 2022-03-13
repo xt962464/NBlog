@@ -57,7 +57,7 @@ export default {
   mounted() {
     this.init();
     this.myHeaders= {
-      'X-Token': window.localStorage.getItem('token')
+      'Authorization': window.localStorage.getItem('token')
     }
   },
   watch: {
@@ -71,9 +71,9 @@ export default {
     getActionUrl: function() {
         var api=""
         if(this.action){
-            api=this.$bassAPI+"/"+ this.action;
+            api=process.env.VUE_APP_BASE_API+ this.action;
         }else{
-            api=this.$bassAPI+"/upload/file"
+            api=process.env.VUE_APP_BASE_API+"upload/file"
         }
       return api;
     }
@@ -84,8 +84,8 @@ export default {
       //   console.log(this.fileUrls);
       if (this.fileUrls.trim().length>0) {
         this.fileUrlList = this.fileUrls.split(",");
-        console.log('组件-init',this.fileUrls);
-        console.log('组件-init',this.fileUrlList);
+        // console.log('组件-init',this.fileUrls);
+        // console.log('组件-init',this.fileUrlList);
         let fileArray = [];
         this.fileUrlList.forEach(function(item, index) {
           var url = item;
@@ -105,9 +105,9 @@ export default {
     },
     // 上传文件成功后执行
     handleUploadSuccess(res, file, fileList) {
-      if (res && res.status == 200) {
+      if (res && res.code == 200) {
         fileList[fileList.length - 1]["url"] =  res.data;
-        // fileList[fileList.length - 1]["url"] = this.$bassAPI + "/upload/" + file.response.file;
+        // fileList[fileList.length - 1]["url"] = process.env.VUE_APP_BASE_API + "/upload/" + file.response.file;
         this.setFileList(fileList);
         console.log("成功",this.fileUrlList);
         if((this.index+"").trim().length>0){

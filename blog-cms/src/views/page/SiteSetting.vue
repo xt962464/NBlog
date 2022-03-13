@@ -9,10 +9,10 @@
                     <el-form label-position="right" label-width="100px">
                         <el-form-item :label="item.nameZh" v-for="item in typeMap.type1" :key="item.id">
                             <div v-if="item.nameEn=='footerImgUrl'">
-                                <file-upload className="text-left" :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="footerImgUrlUploadSuccess" class="upload-class"></file-upload>
+                                <file-upload className="text-left" :showFileList="true" action="upload/file/qiniu" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="footerImgUrlUploadSuccess" class="upload-class"></file-upload>
                             </div>
-                            <div v-if="item.nameEn=='reward'">
-                                <file-upload className="text-left" :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="rewardUrlUploadSuccess" class="upload-class"></file-upload>
+                            <div v-else-if="item.nameEn=='reward'">
+                                <file-upload className="text-left" :showFileList="true" action="upload/file/qiniu" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="rewardUrlUploadSuccess" class="upload-class"></file-upload>
                             </div>
                             <el-input v-else v-model="item.value" size="mini"></el-input>
                         </el-form-item>
@@ -76,7 +76,7 @@
             </el-card>
         </el-row>
 
-        <el-row style="margin-top: 20px">
+        <!-- <el-row style="margin-top: 20px">
             <el-card>
                 <div slot="header" class="site-index-pic-header">
                     <div>首页图片</div>
@@ -93,7 +93,7 @@
                     </el-carousel>
                 </div>
             </el-card>
-        </el-row>
+        </el-row> -->
 
         <div style="text-align: right;margin-top: 30px">
             <el-button type="primary" icon="el-icon-check" @click="submit">保存</el-button>
@@ -124,7 +124,8 @@ export default {
         }
     },
     created() {
-        this.getData()
+        this.getData();
+        console.log("$http",this.$http);
     },
     methods: {
         /**
