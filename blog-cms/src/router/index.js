@@ -133,13 +133,13 @@ const routes = [
 			{
 				path: 'setting',
 				name: 'Setting',
-				component: () => import('@/views/pictureHosting/Setting'),
+				component: () => import('@/views/pictureHosting/Setting-qiniu'),
 				meta: {title: '配置', icon: 'el-icon-setting'}
 			},
 			{
 				path: 'manage',
 				name: 'Manage',
-				component: () => import('@/views/pictureHosting/Manage'),
+				component: () => import('@/views/pictureHosting/Manage-qiniu'),
 				meta: {title: '管理', icon: 'el-icon-folder-opened'}
 			},
 		]

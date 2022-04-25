@@ -17,6 +17,11 @@
         select value from site_setting where name_en='webTitleSuffix'
     </select>
 
+    <!-- 根据名称获取   -->
+    <select id="getByName" resultType="top.naccl.entity.SiteSetting">
+        select * from site_setting where name_en = #{name}
+    </select>
+
     <!--更新-->
     <update id="updateSiteSetting">
         update site_setting set value=#{value} where id=#{id}

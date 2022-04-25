@@ -24,3 +24,13 @@ export function getWebTitleSuffix() {
 		method: 'GET'
 	})
 }
+
+export function getSettingByName(name){
+    return axios({
+		url: 'site-setting/get-by-name',
+		method: 'GET',
+		params: {
+			...name
+		}
+	})
+}

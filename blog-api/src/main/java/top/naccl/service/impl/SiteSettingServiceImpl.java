@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.naccl.constant.RedisKeyConstants;
 import top.naccl.constant.SiteSettingConstants;
 import top.naccl.entity.SiteSetting;
+import top.naccl.enums.SiteSettingTypeEnum;
 import top.naccl.exception.PersistenceException;
 import top.naccl.mapper.SiteSettingMapper;
 import top.naccl.model.vo.Badge;
@@ -31,8 +32,10 @@ import java.util.regex.Pattern;
  */
 @Service
 public class SiteSettingServiceImpl implements SiteSettingService {
+
     @Autowired
     SiteSettingMapper siteSettingMapper;
+
     @Autowired
     RedisService redisService;
 
@@ -47,21 +50,14 @@ public class SiteSettingServiceImpl implements SiteSettingService {
         List<SiteSetting> type3 = new ArrayList<>();
         List<SiteSetting> type4 = new ArrayList<>();
         for (SiteSetting s : siteSettings) {
-            switch (s.getType()) {
-                case 1:
-                    type1.add(s);
-                    break;
-                case 2:
-                    type2.add(s);
-                    break;
-                case 3:
-                    type3.add(s);
-                    break;
-                case 4:
-                    type4.add(s);
-                    break;
-                default:
-                    break;
+            if (SiteSettingTypeEnum.BASIS.getType().equals(s.getType())) {
+                type1.add(s);
+            } else if (SiteSettingTypeEnum.FOOTER.getType().equals(s.getType())) {
+                type2.add(s);
+            } else if (SiteSettingTypeEnum.DATACARD.getType().equals(s.getType())) {
+                type3.add(s);
+            } else if (SiteSettingTypeEnum.LINKS.getType().equals(s.getType())) {
+                type4.add(s);
             }
         }
         map.put("type1", type1);
@@ -86,61 +82,55 @@ public class SiteSettingServiceImpl implements SiteSettingService {
         List<Favorite> favorites = new ArrayList<>();
         List<String> rollTexts = new ArrayList<>();
         for (SiteSetting s : siteSettings) {
-            switch (s.getType()) {
-                case 1:
-                    if (SiteSettingConstants.COPYRIGHT.equals(s.getNameEn())) {
-                        Copyright copyright = JacksonUtils.readValue(s.getValue(), Copyright.class);
-                        siteInfo.put(s.getNameEn(), copyright);
-                    } else {
-                        siteInfo.put(s.getNameEn(), s.getValue());
-                    }
-                    break;
-                case 2:
-                    switch (s.getNameEn()) {
-                        case SiteSettingConstants.AVATAR:
-                            introduction.setAvatar(s.getValue());
-                            break;
-                        case SiteSettingConstants.NAME:
-                            introduction.setName(s.getValue());
-                            break;
-                        case SiteSettingConstants.GITHUB:
-                            introduction.setGithub(s.getValue());
-                            break;
-                        case SiteSettingConstants.TELEGRAM:
-                            introduction.setTelegram(s.getValue());
-                            break;
-                        case SiteSettingConstants.QQ:
-                            introduction.setQq(s.getValue());
-                            break;
-                        case SiteSettingConstants.BILIBILI:
-                            introduction.setBilibili(s.getValue());
-                            break;
-                        case SiteSettingConstants.NETEASE:
-                            introduction.setNetease(s.getValue());
-                            break;
-                        case SiteSettingConstants.EMAIL:
-                            introduction.setEmail(s.getValue());
-                            break;
-                        case SiteSettingConstants.FAVORITE:
-                            Favorite favorite = JacksonUtils.readValue(s.getValue(), Favorite.class);
-                            favorites.add(favorite);
-                            break;
-                        case SiteSettingConstants.ROLL_TEXT:
-                            Matcher m = PATTERN.matcher(s.getValue());
-                            while (m.find()) {
-                                rollTexts.add(m.group(1));
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case 3:
-                    Badge badge = JacksonUtils.readValue(s.getValue(), Badge.class);
-                    badges.add(badge);
-                    break;
-                default:
-                    break;
+            if (SiteSettingTypeEnum.BASIS.getType().equals(s.getType())) {
+                if (SiteSettingConstants.COPYRIGHT.equals(s.getNameEn())) {
+                    Copyright copyright = JacksonUtils.readValue(s.getValue(), Copyright.class);
+                    siteInfo.put(s.getNameEn(), copyright);
+                } else {
+                    siteInfo.put(s.getNameEn(), s.getValue());
+                }
+            } else if (SiteSettingTypeEnum.FOOTER.getType().equals(s.getType())) {
+                switch (s.getNameEn()) {
+                    case SiteSettingConstants.AVATAR:
+                        introduction.setAvatar(s.getValue());
+                        break;
+                    case SiteSettingConstants.NAME:
+                        introduction.setName(s.getValue());
+                        break;
+                    case SiteSettingConstants.GITHUB:
+                        introduction.setGithub(s.getValue());
+                        break;
+                    case SiteSettingConstants.TELEGRAM:
+                        introduction.setTelegram(s.getValue());
+                        break;
+                    case SiteSettingConstants.QQ:
+                        introduction.setQq(s.getValue());
+                        break;
+                    case SiteSettingConstants.BILIBILI:
+                        introduction.setBilibili(s.getValue());
+                        break;
+                    case SiteSettingConstants.NETEASE:
+                        introduction.setNetease(s.getValue());
+                        break;
+                    case SiteSettingConstants.EMAIL:
+                        introduction.setEmail(s.getValue());
+                        break;
+                    case SiteSettingConstants.FAVORITE:
+                        Favorite favorite = JacksonUtils.readValue(s.getValue(), Favorite.class);
+                        favorites.add(favorite);
+                        break;
+                    case SiteSettingConstants.ROLL_TEXT:
+                        Matcher m = PATTERN.matcher(s.getValue());
+                        while (m.find()) {
+                            rollTexts.add(m.group(1));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } else if (SiteSettingTypeEnum.DATACARD.getType().equals(s.getType())) {
+                Badge badge = JacksonUtils.readValue(s.getValue(), Badge.class);
+                badges.add(badge);
             }
         }
         introduction.setFavorites(favorites);
@@ -174,6 +164,14 @@ public class SiteSettingServiceImpl implements SiteSettingService {
             }
         }
         deleteSiteInfoRedisCache();
+    }
+
+    @Override
+    public Map<String, List<SiteSetting>> getSiteInfo(String name) {
+        List<SiteSetting> settingList = this.siteSettingMapper.getByName(name);
+        Map<String, List<SiteSetting>> map = new HashMap<>();
+        map.put(name, settingList);
+        return map;
     }
 
     @Transactional

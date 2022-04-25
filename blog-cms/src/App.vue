@@ -9,3 +9,9 @@
 		name: 'App'
 	}
 </script>
+<style>
+.form-item-inline .el-form-item__content{
+    display: inline-block;
+    margin-left: 20px;
+}
+</style>

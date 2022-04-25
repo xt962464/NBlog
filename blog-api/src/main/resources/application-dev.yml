@@ -24,8 +24,8 @@ spring:
   mail:
     host: smtp.mxhichina.com
     port: 25
-    username: \u90AE\u7BB1\u8D26\u53F7
-    password: \u90AE\u7BB1\u5BC6\u7801
+    username: 邮箱账号
+    password: 邮箱密码
 
 
   redis:
@@ -47,7 +47,7 @@ logging:
       naccl: debug
   file: blog-api/log/blog-dev
 
-# 1000 * 60 * 60 * 24 * 3 \u4E09\u5929
+# 1000 * 60 * 60 * 24 * 3 三天
 token:
   expireTime: 259200000
 # 生产环境务必修改此配置，否则无法保证token安全性

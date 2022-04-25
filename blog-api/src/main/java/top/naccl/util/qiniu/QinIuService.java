@@ -7,12 +7,16 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import top.naccl.model.vo.CdnFileInfo;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,30 +24,22 @@ import java.util.UUID;
  * @author: ※狗尾巴草
  * @date: 2020-08-28 13:38
  **/
-@Component
+@Slf4j
 public class QinIuService {
 
     // 图片允许的后缀扩展名
     private final String[] IMAGE_FILE_EXTD = new String[]{"png", "jpg", "jpeg", "gif"};
     // 设置好账号的ACCESS_KEY和SECRET_KEY
-    @Value("${qiniu.ACCESS_KEY}")
     private String ACCESS_KEY;
-    @Value("${qiniu.SECRET_KEY}")
     private String SECRET_KEY;
     // 要上传的空间
-    @Value("${qiniu.bucketName}")
     private String bucketName;
-    @Value("${qiniu.zone}")
     private String zoneStr;
 
     // 域名
-    @Value("${qiniu.url}")
     private String QINIU_IMAGE_DOMAIN;
 
     private com.qiniu.storage.BucketManager bucketManager = null;
-
-    public QinIuService() {
-    }
 
     public QinIuService(String ak, String sk, String bucketName, String zone, String domain) {
         this.ACCESS_KEY = ak;
@@ -51,6 +47,7 @@ public class QinIuService {
         this.bucketName = bucketName;
         this.zoneStr = zone;
         this.QINIU_IMAGE_DOMAIN = domain;
+        this.bucketManager = new BucketManager(getAuth(), getConfiguration());
     }
 
     //上传
@@ -129,19 +126,61 @@ public class QinIuService {
                 return null;
             }
         } catch (QiniuException e) {
-            // 请求失败时打印的异常的信息
-//            System.out.println("七牛异常:" + e.getMessage());
+//             请求失败时打印的异常的信息
+            System.out.println("七牛异常:" + e.getMessage());
         }
         return null;
     }
 
     //删除图片
-    public boolean deleteImg(String imgUrl) throws QiniuException {
-        String key = imgUrl.replace(this.QINIU_IMAGE_DOMAIN + "/", "");
-        BucketManager bucketManager = this.bucketManager = new BucketManager(getAuth(), getConfiguration());
-        bucketManager.delete(this.bucketName, key);
+    public boolean deleteFile(String imgUrl) {
+        try {
+            if (StringUtils.isNotBlank(imgUrl)) {
+                String key = imgUrl.replace(this.QINIU_IMAGE_DOMAIN + "/", "");
+                this.bucketManager.delete(this.bucketName, key);
+                log.info("删除七牛云文件成功: [{}]", imgUrl);
+                return true;
+            }
+        } catch (QiniuException e) {
+            log.error("删除七牛云文件失败: url:[{}],msg:[{}]", imgUrl, e.getMessage());
+        }
         return false;
     }
 
 
+    public List<CdnFileInfo> getFileList(Integer index, Integer limit) {
+        //文件名前缀
+        String prefix = "";
+        //每次迭代的长度限制，最大1000，推荐值 1000
+        if (limit == null) {
+            limit = 50;
+        }
+        if (index == null) {
+            index = 1;
+        }
+        //指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
+        String delimiter = "";
+        //列举空间文件列表
+        BucketManager.FileListIterator fileListIterator = bucketManager.createFileListIterator(bucketName, prefix, limit, delimiter);
+        List<CdnFileInfo> list = new ArrayList<>();
+        int i = 1;
+        while (fileListIterator.hasNext()) {
+            //处理获取的file list结果
+            FileInfo[] items = fileListIterator.next();
+            if (i == index) {
+                for (FileInfo item : items) {
+                    CdnFileInfo fileInfo = new CdnFileInfo();
+                    fileInfo.setKey(item.key);
+                    fileInfo.setUrl(this.QINIU_IMAGE_DOMAIN + "/" + item.key);
+                    fileInfo.setFileSize(item.fsize);
+                    fileInfo.setHash(item.hash);
+                    fileInfo.setMimeType(item.mimeType);
+                    list.add(fileInfo);
+                }
+                break;
+            }
+            i++;
+        }
+        return list;
+    }
 }

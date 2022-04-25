@@ -32,8 +32,16 @@ public class Result {
 		this.data = data;
 	}
 
+	public static Result ok() {
+		return new Result(200, "成功", null);
+	}
+
 	public static Result ok(String msg, Object data) {
 		return new Result(200, msg, data);
+	}
+
+	public static Result ok( Object data) {
+		return new Result(200, "请求成功", data);
 	}
 
 	public static Result ok(String msg) {

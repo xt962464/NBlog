@@ -1,6 +1,7 @@
 package top.naccl.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import top.naccl.entity.SiteSetting;
 
@@ -29,4 +30,7 @@ public interface SiteSettingMapper {
 	int updateFriendInfoContent(String content);
 
 	int updateFriendInfoCommentEnabled(Boolean commentEnabled);
+
+	List<SiteSetting> getByName(@Param("name") String name);
+
 }
