@@ -101,11 +101,3 @@ upload:
     repos: test
 # 需要上传至仓库的路径 开头需要"/" 结尾不要"/"
     repos-path: /comment/avatar
-
-# 七牛云
-qiniu:
-  url: https://cdn.blog.xt-inn.com
-  ACCESS_KEY: RfkcbXXEOGHredFc84c8Mbca9l0TyisCU_peCuWy
-  SECRET_KEY: 3BKjHCIySqnsP009O2R9C0uHgkkEuj1EQo8uEQl3
-  bucketName: xt-tavern
-  zone: 华南
