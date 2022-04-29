@@ -101,3 +101,11 @@ upload:
     repos: test
 # 需要上传至仓库的路径 开头需要"/" 结尾不要"/"
     repos-path: /comment/avatar
+
+# 阿里云相关配置
+aliyun:
+  access-key-id: xxx
+  access-key-secret: xxx
+  message:
+    sign-name: xxx
+    template-code: xxx
