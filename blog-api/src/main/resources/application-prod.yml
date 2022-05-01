@@ -104,8 +104,8 @@ upload:
 
 # 阿里云相关配置
 aliyun:
-  access-key-id: LTAI4GG4f9VCqu6ZanvX56Gd
-  access-key-secret: xKUNqkobTJnndjEWcP78a3G9dz4PMN
+  access-key-id: xx
+  access-key-secret: xx
   message:
-    sign-name: 笔记录
-    template-code: SMS_240395069
+    sign-name: xx
+    template-code: xx
