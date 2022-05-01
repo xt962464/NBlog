@@ -2,7 +2,7 @@ server:
   port: 8090
 
 blog:
-  name: Allen's Blog
+  name: Alan's Blog
 # 生产环境需要修改为服务器ip或域名
 # 后端服务 URL https://api.naccl.top/blog
   api: http://localhost:${server.port}
@@ -16,7 +16,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/nblog?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
     username: root
-    password: 962464
+    password: Xt962464@2021.Mysql
 # 如果选择邮箱提醒方式，则会在收到评论后向填写的邮箱自身发送一封邮件(提醒自己)；如果选择tg，则填写的邮箱只作为提醒访客的发送方
 # 阿里云邮箱，port=25在Windows系统下有效，Linux系统需要改为465并将下面两行取消注释，其它邮箱服务商配置参考关键字"spring mail 服务器
 # spring.mail.properties.mail.smtp.socketFactory.port=465

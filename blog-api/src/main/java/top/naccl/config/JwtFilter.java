@@ -44,7 +44,8 @@ public class JwtFilter extends GenericFilterBean {
 				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, null, authorities);
 				SecurityContextHolder.getContext().setAuthentication(token);
 			} catch (Exception e) {
-				e.printStackTrace();
+//				e.printStackTrace();
+				logger.warn("凭证已失效，请重新登录！");
 				response.setContentType("application/json;charset=utf-8");
 				Result result = Result.create(403, "凭证已失效，请重新登录！");
 				PrintWriter out = response.getWriter();

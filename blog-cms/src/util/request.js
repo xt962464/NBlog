@@ -2,6 +2,7 @@ import axios from 'axios'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { Message } from 'element-ui'
+import router from '../router'
 
 const request = axios.create({
 	baseURL: process.env.VUE_APP_BASE_API,
@@ -40,8 +41,12 @@ request.interceptors.response.use(response => {
 	NProgress.done()
 	const res = response.data
 	if (res.code !== 200) {
-		let msg = res.msg || 'Error'
+        let msg = res.msg || 'Error'
 		Message.error(msg)
+        if(res.code === 403){
+            router.push("/login")
+            return Promise.reject(new Error(msg))
+        }
 		return Promise.reject(new Error(msg))
 	}
 	return res
