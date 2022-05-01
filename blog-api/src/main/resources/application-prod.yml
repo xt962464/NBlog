@@ -1,0 +1,111 @@
+server:
+  port: 8090
+
+blog:
+  name: Alan's Blog
+# 生产环境需要修改为服务器ip或域名
+# 后端服务 URL https://api.naccl.top/blog
+  api: http://localhost:${server.port}
+# 后台管理 URL https://admin.naccl.top
+  cms: http://localhost:8080
+# 前台界面 URL https://naccl.top
+  view: http://localhost:8081
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/nblog?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: Xt962464@2021.Mysql
+# 如果选择邮箱提醒方式，则会在收到评论后向填写的邮箱自身发送一封邮件(提醒自己)；如果选择tg，则填写的邮箱只作为提醒访客的发送方
+# 阿里云邮箱，port=25在Windows系统下有效，Linux系统需要改为465并将下面两行取消注释，其它邮箱服务商配置参考关键字"spring mail 服务器
+# spring.mail.properties.mail.smtp.socketFactory.port=465
+# spring.mail.properties.mail.smtp.ssl.enable=true
+  mail:
+    host: smtp.mxhichina.com
+    port: 25
+    username: 邮箱账号
+    password: 邮箱密码
+
+
+  redis:
+    host: 127.0.0.1
+#spring.redis.password=123456
+    port: 6379
+    database: 0
+    timeout: 10000ms
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    root: info
+    top:
+      naccl: debug
+  file: blog-api/log/blog-dev
+
+# 1000 * 60 * 60 * 24 * 3 三天
+token:
+  expireTime: 259200000
+# 生产环境务必修改此配置，否则无法保证token安全性
+  secretKey: abcdefghijklmnopqrstuvwxyz
+
+# 博主接收评论提醒方式: Telegram=tg 邮箱=mail (访客评论提醒固定为邮箱方式)
+comment:
+  notify:
+    channel: mail
+# 新评论是否默认公开
+  default-open: true
+
+# 如果选择邮箱提醒方式，以下可以无需修改
+tg:
+  bot:
+    api: https://api.telegram.org/bot
+# bot的token，可以从 @BotFather 处获取
+    token: 1234567890:qwertyuiopasdfghjklzxcvbnm
+# 自己账号和bot的聊天会话id
+    chat-id: 1234567890
+# 是否使用代理
+    use-proxy: false
+# 是否使用反向代理
+    use-reverse-proxy: true
+# 反向代理URL，请自行搭建，示例API随时可能关闭
+    reverse-proxy-url: https://tg-api-open.naccl.workers.dev
+
+# 代理配置，如不使用无需修改 (目前用于发送Telegram请求)
+http:
+  proxy:
+    server:
+      host: 127.0.0.1
+      port: 7890
+      timeout: 10000
+
+# 评论中QQ头像存储方式: 本地:local GitHub:github
+upload:
+  channel: local
+# 静态文件上传访问路径 Windows环境例如: C:/Users/nblog/Desktop/upload/ Linux环境例如：/home/nblog/upload/
+  file:
+    path: /Users/naccl/Desktop/upload/
+    access-path: /image/**
+    resources-locations: file:${upload.file.path}
+
+# 如果选择本地上传方式，以下可以无需修改
+# GitHub token 教程见 https://naccl.github.io/PictureHosting/#/pictureHosting/help
+  github:
+    token: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    username: Naccl
+# 需要用作图床的GitHub仓库名
+    repos: test
+# 需要上传至仓库的路径 开头需要"/" 结尾不要"/"
+    repos-path: /comment/avatar
+
+# 阿里云相关配置
+aliyun:
+  access-key-id: LTAI4GG4f9VCqu6ZanvX56Gd
+  access-key-secret: xKUNqkobTJnndjEWcP78a3G9dz4PMN
+  message:
+    sign-name: 笔记录
+    template-code: SMS_240395069
