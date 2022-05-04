@@ -10,7 +10,7 @@
 					<img :src="user.avatar" class="user-avatar">
 				</div>
 				<el-dropdown-menu slot="dropdown" class="user-dropdown">
-					<a target="_blank" href="https://github.com/Naccl/NBlog">
+					<a target="_blank" href="https://github.com/xt962464/NBlog/tree/inn-blog-cms">
 						<el-dropdown-item>
 							<SvgIcon icon-class="github" class-name="svg"/>
 							<span>GitHub</span>
