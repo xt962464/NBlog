@@ -9,10 +9,10 @@
                     <el-form label-position="right" label-width="100px">
                         <el-form-item :label="item.nameZh" v-for="item in typeMap.type1" :key="item.id">
                             <div v-if="item.nameEn=='footerImgUrl'">
-                                <file-upload className="text-left" :showFileList="true" action="upload/file/qiniu" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="footerImgUrlUploadSuccess" class="upload-class"></file-upload>
+                                <file-upload className="text-left" :showFileList="true" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="footerImgUrlUploadSuccess" class="upload-class"></file-upload>
                             </div>
                             <div v-else-if="item.nameEn=='reward'">
-                                <file-upload className="text-left" :showFileList="true" action="upload/file/qiniu" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="rewardUrlUploadSuccess" class="upload-class"></file-upload>
+                                <file-upload className="text-left" :showFileList="true" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="rewardUrlUploadSuccess" class="upload-class"></file-upload>
                             </div>
                             <el-input v-else v-model="item.value" size="mini"></el-input>
                         </el-form-item>
@@ -35,7 +35,7 @@
                                 </el-col>
                             </div>
                             <div v-else-if="item.nameEn=='avatar'">
-                                <file-upload className="text-left" :showFileList="true" action="upload/local/file" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="avatarUploadSuccess" class="upload-class"></file-upload>
+                                <file-upload className="text-left" :showFileList="true" :style="uploadStyle" :limit="1" :fileUrls="item.value" @change="avatarUploadSuccess" class="upload-class"></file-upload>
                             </div>
                             <div v-else>
                                 <el-input v-model="item.value" size="mini"></el-input>
@@ -88,7 +88,7 @@
                 <div v-for="item in typeMap.type4" :key="item.id">
                     <el-carousel v-if="item.nameEn=='siteIndexPic'" :interval="4000" type="card" height="200px" :autoplay="false">
                         <el-carousel-item v-for="(pic,i) in siteIndexPicList" :key="i">
-                            <file-upload :showFileList="true" action="upload/local/file" :index="i" :style="uploadStyle" :limit="1" :fileUrls="pic" @change="siteIndexPicUploadSuccess" class="upload-class"></file-upload>
+                            <file-upload :showFileList="true" :index="i" :style="uploadStyle" :limit="1" :fileUrls="pic" @change="siteIndexPicUploadSuccess" class="upload-class"></file-upload>
                         </el-carousel-item>
                     </el-carousel>
                 </div>
@@ -106,7 +106,6 @@ import Breadcrumb from "@/components/Breadcrumb";
 import fileUpload from "@/components/upload/file-upload"
 import { getSiteSettingData, update } from "@/api/siteSetting";
 import _ from 'lodash'
-import FileUpload from '../../components/upload/file-upload.vue';
 
 export default {
     name: "SiteSetting",
@@ -132,9 +131,11 @@ export default {
          * 头像上传成功
          */
         avatarUploadSuccess(urls) {
+            console.log(urls);
             for (let index = 0; index < this.typeMap.type2.length; index++) {
                 if (this.typeMap.type2[index].nameEn == "avatar") {
                     this.typeMap.type2[index].value = urls;
+                    return;
                 }
             }
         },
@@ -196,7 +197,7 @@ export default {
         getData() {
             getSiteSettingData().then(res => {
                 this.typeMap = res.data;
-                console.log("typeMap", this.typeMap);
+                // console.log("typeMap", this.typeMap);
                 res.data.type3.forEach(item => {
                     item.value = JSON.parse(item.value)
                 })
@@ -208,7 +209,7 @@ export default {
                         }
                     }
                 })
-                console.log("typeMap", this.typeMap);
+                // console.log("typeMap", this.typeMap);
             })
         },
         addFavorite() {

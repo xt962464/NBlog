@@ -72,7 +72,7 @@ export default {
             if (this.action) {
                 api = process.env.VUE_APP_BASE_API + this.action;
             } else {
-                api = process.env.VUE_APP_BASE_API + "upload/file/qiniu";
+                api = process.env.VUE_APP_BASE_API + "file/qiniu/upload";
             }
             return api;
         },
@@ -100,7 +100,7 @@ export default {
             }
         },
         handleBeforeUpload(file) {
-            console.log("上传前", file);
+            // console.log("上传前", file);
         },
         // 上传文件成功后执行
         handleUploadSuccess(res, file, fileList) {
@@ -108,15 +108,16 @@ export default {
                 fileList[fileList.length - 1]["url"] = res.data;
                 // fileList[fileList.length - 1]["url"] = process.env.VUE_APP_BASE_API + "/upload/" + file.response.file;
                 this.setFileList(fileList);
-                console.log("成功", this.fileUrlList);
-                if ((this.index + "").trim().length > 0) {
-                    this.$emit("change", {
-                        url: this.fileUrlList.join(","),
-                        index: this.index,
-                    });
-                } else {
-                    this.$emit("change", this.fileUrlList.join(","));
-                }
+                // console.log("成功", this.fileUrlList);
+                this.$emit("change", this.fileUrlList.join(","));
+                // if ((this.index + "").trim().length > 0) {
+                //     this.$emit("change", {
+                //         url: this.fileUrlList.join(","),
+                //         index: this.index,
+                //     });
+                // } else {
+                //     this.$emit("change", this.fileUrlList.join(","));
+                // }
                 this.hideUploadBtn();
             } else {
                 this.$message.error(res.msg);
