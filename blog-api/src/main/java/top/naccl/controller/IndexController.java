@@ -13,6 +13,7 @@ import top.naccl.service.CategoryService;
 import top.naccl.service.SiteSettingService;
 import top.naccl.service.TagService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,31 +25,41 @@ import java.util.Map;
 
 @RestController
 public class IndexController {
-	@Autowired
-	SiteSettingService siteSettingService;
-	@Autowired
-	BlogService blogService;
-	@Autowired
-	CategoryService categoryService;
-	@Autowired
-	TagService tagService;
+    @Autowired
+    SiteSettingService siteSettingService;
+    @Autowired
+    BlogService blogService;
+    @Autowired
+    CategoryService categoryService;
+    @Autowired
+    TagService tagService;
 
-	/**
-	 * 获取站点配置信息、最新推荐博客、分类列表、标签云、随机博客
-	 *
-	 * @return
-	 */
-	@GetMapping("/site")
-	public Result site() {
-		Map<String, Object> map = siteSettingService.getSiteInfo();
-		List<NewBlog> newBlogList = blogService.getNewBlogListByIsPublished();
-		List<Category> categoryList = categoryService.getCategoryNameList();
-		List<Tag> tagList = tagService.getTagListNotId();
-		List<RandomBlog> randomBlogList = blogService.getRandomBlogListByLimitNumAndIsPublishedAndIsRecommend();
-		map.put("newBlogList", newBlogList);
-		map.put("categoryList", categoryList);
-		map.put("tagList", tagList);
-		map.put("randomBlogList", randomBlogList);
-		return Result.ok("请求成功", map);
-	}
+    /**
+     * 获取站点配置信息、最新推荐博客、分类列表、标签云、随机博客
+     *
+     * @return
+     */
+    @GetMapping("/site")
+    public Result site() {
+        Map<String, Object> map = siteSettingService.getSiteInfo();
+        List<NewBlog> newBlogList = blogService.getNewBlogListByIsPublished();
+        List<Category> categoryList = categoryService.getCategoryNameList();
+        List<Tag> tagList = tagService.getTagListNotId();
+        List<RandomBlog> randomBlogList = blogService.getRandomBlogListByLimitNumAndIsPublishedAndIsRecommend();
+        map.put("newBlogList", newBlogList);
+        map.put("categoryList", categoryList);
+        map.put("tagList", tagList);
+        map.put("randomBlogList", randomBlogList);
+        return Result.ok("请求成功", map);
+    }
+
+    /**
+     * 首页轮播大图
+     */
+    @GetMapping("/site-banner")
+    public Result siteBanner() {
+        return Result.ok("请求成功", siteSettingService.getBannerList());
+    }
+
+
 }

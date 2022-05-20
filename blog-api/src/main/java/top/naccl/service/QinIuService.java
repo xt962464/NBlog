@@ -1,4 +1,4 @@
-package top.naccl.util.qiniu;
+package top.naccl.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
@@ -11,12 +11,19 @@ import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import top.naccl.entity.SiteSetting;
 import top.naccl.model.vo.CdnFileInfo;
+import top.naccl.model.vo.Result;
+import top.naccl.service.SiteSettingService;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -25,7 +32,11 @@ import java.util.UUID;
  * @date: 2020-08-28 13:38
  **/
 @Slf4j
+@Component
 public class QinIuService {
+
+    @Autowired
+    private SiteSettingService siteSettingService;
 
     // 图片允许的后缀扩展名
     private final String[] IMAGE_FILE_EXTD = new String[]{"png", "jpg", "jpeg", "gif"};
@@ -41,13 +52,27 @@ public class QinIuService {
 
     private com.qiniu.storage.BucketManager bucketManager = null;
 
-    public QinIuService(String ak, String sk, String bucketName, String zone, String domain) {
-        this.ACCESS_KEY = ak;
-        this.SECRET_KEY = sk;
-        this.bucketName = bucketName;
-        this.zoneStr = zone;
-        this.QINIU_IMAGE_DOMAIN = domain;
-        this.bucketManager = new BucketManager(getAuth(), getConfiguration());
+    @PostConstruct
+    private void init(){
+        Map<String, List<SiteSetting>> siteInfo = siteSettingService.getSiteInfo("qiniu");
+        List<SiteSetting> siteSettings = siteInfo.get("qiniu");
+        if (siteSettings.size() > 0) {
+            SiteSetting setting = siteSettings.get(0);
+            if (StringUtils.isNoneBlank(setting.getValue())) {
+                JSONObject object = JSONObject.parseObject(setting.getValue());
+                String ak = object.getString("ak");
+                String sk = object.getString("sk");
+                String zone = object.getString("region");
+                String name = object.getString("name");
+                String doMain = object.getString("doMain");
+                this.ACCESS_KEY = ak;
+                this.SECRET_KEY = sk;
+                this.bucketName = name;
+                this.zoneStr = zone;
+                this.QINIU_IMAGE_DOMAIN = doMain;
+                this.bucketManager = new BucketManager(getAuth(), getConfiguration());
+            }
+        }
     }
 
     //上传
@@ -135,7 +160,7 @@ public class QinIuService {
     //删除图片
     public boolean deleteFile(String imgUrl) {
         try {
-            if (StringUtils.isNotBlank(imgUrl)) {
+            if (StringUtils.isNotBlank(imgUrl) && this.bucketManager != null) {
                 String key = imgUrl.replace(this.QINIU_IMAGE_DOMAIN + "/", "");
                 this.bucketManager.delete(this.bucketName, key);
                 log.info("删除七牛云文件成功: [{}]", imgUrl);
@@ -149,6 +174,10 @@ public class QinIuService {
 
 
     public List<CdnFileInfo> getFileList(Integer index, Integer limit) {
+        if(bucketManager == null){
+            log.warn("七牛云未初始化.....");
+            return new ArrayList<>();
+        }
         //文件名前缀
         String prefix = "";
         //每次迭代的长度限制，最大1000，推荐值 1000

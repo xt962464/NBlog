@@ -2,9 +2,10 @@
 	<header ref="header">
 		<div class="view">
 			<img ref="imgbg1" src="https://cdn.jsdelivr.net/gh/Naccl/blog-resource/img/bg1.jpg" style="display: none;">
-			<div class="bg1" style="background-image: url('https://cdn.jsdelivr.net/gh/Naccl/blog-resource/img/bg1.jpg');"></div>
-			<div class="bg2" style="background-image: url('https://cdn.jsdelivr.net/gh/Naccl/blog-resource/img/bg2.jpg');"></div>
-			<div class="bg3" style="background-image: url('https://cdn.jsdelivr.net/gh/Naccl/blog-resource/img/bg3.jpg');" v-show="loaded"></div>
+
+			<div v-for="(img, i) in bannerList" :key="i" :class="['bg'+(i+1)]" :data-url="img" :style="{'background-image': 'url('+img+')'}"></div>
+			<!-- <div class="bg2" style="background-image: url('https://cdn.jsdelivr.net/gh/Naccl/blog-resource/img/bg2.jpg');"></div>
+			<div class="bg3" style="background-image: url('https://cdn.jsdelivr.net/gh/Naccl/blog-resource/img/bg3.jpg');" v-show="loaded"></div> -->
 		</div>
 		<div class="text-malfunction" data-word="Allen's Blog">
 			<div class="line"></div>
@@ -19,12 +20,14 @@
 
 <script>
 	import {mapState} from 'vuex'
+    import {getSiteBanner} from '@/api/index'
 
 	export default {
 		name: "Header",
 		data() {
 			return {
-				loaded: false
+				loaded: false,
+                bannerList:[],
 			}
 		},
 		computed: {
@@ -35,6 +38,9 @@
 				this.setHeaderHeight()
 			}
 		},
+        created(){
+            this.getIndexBannerImg();
+        },
 		mounted() {
 			/**
 			 * 因为bg3.jpg比较小，通常会比bg1.jpg先加载，显示出来会有一瞬间bg1显示一半，bg3显示一半，为了解决这个问题，增加这个判断，让bg1加载完毕后再显示bg3
@@ -68,7 +74,14 @@
 			//平滑滚动至正文部分
 			scrollToMain() {
 				window.scrollTo({top: this.clientSize.clientHeight, behavior: 'smooth'})
-			}
+			},
+            // 获取首页大图
+            getIndexBannerImg(){
+                getSiteBanner().then(resp=>{
+                    this.bannerList = resp.data;
+                    console.log(this.bannerList);
+                })
+            },
 		},
 	}
 </script>

@@ -13,3 +13,10 @@ export function getSite() {
 		method: 'GET'
 	})
 }
+
+export function getSiteBanner() {
+	return axios({
+		url: 'site-banner',
+		method: 'GET'
+	})
+}

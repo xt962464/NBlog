@@ -1,5 +1,6 @@
 package top.naccl.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +17,9 @@ import top.naccl.model.vo.Introduction;
 import top.naccl.service.RedisService;
 import top.naccl.service.SiteSettingService;
 import top.naccl.util.JacksonUtils;
+import top.naccl.service.QinIuService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +33,9 @@ public class SiteSettingServiceImpl implements SiteSettingService {
 
     @Autowired
     SiteSettingMapper siteSettingMapper;
+
+    @Autowired
+    private QinIuService qinIuService;
 
     @Autowired
     RedisService redisService;
@@ -143,6 +144,24 @@ public class SiteSettingServiceImpl implements SiteSettingService {
     }
 
     @Override
+    public List<String> getBannerList() {
+        List<SiteSetting> bannerSetting = getSiteInfo("siteIndexBannerPic").get("siteIndexBannerPic");
+        List<String> bannerUrlList = new ArrayList<>();
+        if (bannerSetting.size() > 0) {
+            SiteSetting siteSetting = bannerSetting.get(0);
+            if (StringUtils.isNotBlank(siteSetting.getValue())) {
+                String[] urls = siteSetting.getValue().split(",");
+                for (int i = 0; i < urls.length; i++) {
+                    if (!bannerUrlList.contains(urls[i])) {
+                        bannerUrlList.add(urls[i]);
+                    }
+                }
+            }
+        }
+        return bannerUrlList;
+    }
+
+    @Override
     public String getWebTitleSuffix() {
         return siteSettingMapper.getWebTitleSuffix();
     }
@@ -153,9 +172,16 @@ public class SiteSettingServiceImpl implements SiteSettingService {
             //删除
             deleteOneSiteSettingById(id);
         }
+        // 原有的设置值
+        List<String> bannerUrlList = getBannerList();
+
         for (LinkedHashMap s : siteSettings) {
             SiteSetting siteSetting = JacksonUtils.convertValue(s, SiteSetting.class);
+            if ("siteIndexBannerPic".equalsIgnoreCase(siteSetting.getNameEn())) {
+                deleteQiNiuImg(siteSetting, bannerUrlList);
+            }
             if (siteSetting.getId() != null) {
+
                 //修改
                 updateOneSiteSetting(siteSetting);
             } else {
@@ -164,6 +190,32 @@ public class SiteSettingServiceImpl implements SiteSettingService {
             }
         }
         deleteSiteInfoRedisCache();
+    }
+
+    /**
+     * 判断轮播图是否删除
+     *
+     * @param siteSetting   设置
+     * @param bannerUrlList 原有链接
+     */
+    private void deleteQiNiuImg(SiteSetting siteSetting, List<String> bannerUrlList) {
+        // 判断轮播图是否删除
+        if (StringUtils.isNotBlank(siteSetting.getValue())) {
+            String[] urls = siteSetting.getValue().split(",");
+            List<String> urlList = Arrays.asList(urls);
+            for (int i = 0; i < bannerUrlList.size(); i++) {
+                if (!urlList.contains(bannerUrlList.get(i))) {
+                    qinIuService.deleteFile(bannerUrlList.get(i));
+                }
+            }
+        } else {
+            // 全删
+            if (bannerUrlList.size() > 0) {
+                for (int i = 0; i < bannerUrlList.size(); i++) {
+                    qinIuService.deleteFile(bannerUrlList.get(i));
+                }
+            }
+        }
     }
 
     @Override

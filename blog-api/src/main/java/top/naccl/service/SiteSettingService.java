@@ -11,6 +11,8 @@ public interface SiteSettingService {
 
     Map<String, Object> getSiteInfo();
 
+    List<String> getBannerList();
+
     String getWebTitleSuffix();
 
     void updateSiteSetting(List<LinkedHashMap> siteSettings, List<Integer> deleteIds);
