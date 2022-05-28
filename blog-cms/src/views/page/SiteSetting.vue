@@ -187,7 +187,7 @@ export default {
         },
         siteIndexPicUploadSuccess(res, file, fileList) {
             var _this = this;
-            console.log(res, file, fileList);
+            // console.log(res, file, fileList);
             this.typeMap.type4.forEach((item) => {
                 if (item.nameEn == "siteIndexBannerPic") {
                     _this.siteIndexPicList.push(res["data"]);
