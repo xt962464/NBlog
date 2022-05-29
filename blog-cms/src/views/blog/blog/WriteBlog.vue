@@ -107,6 +107,7 @@
 <script>
 import Breadcrumb from "@/components/Breadcrumb";
 import fileUpload from "@/components/upload/file-upload";
+import { removeHTMLTag } from "../../../util/utils";
 
 import {
     getCategoryAndTag,
@@ -138,11 +139,11 @@ export default {
                 words: null,
                 readTime: null,
                 views: 0,
-                appreciation: false,
+                appreciation: true,
                 recommend: false,
-                commentEnabled: false,
+                commentEnabled: true,
                 top: false,
-                published: false,
+                published: true,
                 password: "",
             },
             formRules: {
@@ -211,6 +212,10 @@ export default {
             this.pageIndex++;
             if (this.pageIndex >= 4) {
                 this.pageIndex = 4;
+                var text = removeHTMLTag(this.form.content);
+                if (text) {
+                    this.form.words = text.length;
+                }
             }
         },
         // 描述-图片上传回调
@@ -314,7 +319,7 @@ export default {
     min-height: calc(100vh - 150px);
 }
 .btn-box {
-    position: absolute;
+    /* position: absolute; */
     bottom: 0;
     display: flex;
     width: 100%;

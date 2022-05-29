@@ -61,7 +61,7 @@ public class MailUtils {
             javaMailSender.send(mimeMessage);
             log.info("邮件发送完成: toAccount: [{}]", toAccount);
         } catch (Exception e) {
-            log.error("开始发送邮件: toAccount: [{}}],内容: [{}]", toAccount, template);
+            log.error("邮件发送失败: toAccount: [{}}],内容: [{}], 错误: [{}]", toAccount, template, e.getMessage());
         }
     }
 }
