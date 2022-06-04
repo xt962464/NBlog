@@ -7,7 +7,7 @@
 			<!-- <div class="bg2" style="background-image: url('https://fastly.jsdelivr.net/gh/Naccl/blog-resource/img/bg2.jpg');"></div>
 			<div class="bg3" style="background-image: url('https://fastly.jsdelivr.net/gh/Naccl/blog-resource/img/bg3.jpg');" v-show="loaded"></div> -->
 		</div>
-		<div class="text-malfunction" data-word="Allen's Blog">
+		<div class="text-malfunction" data-word="Alan's Blog">
 			<div class="line"></div>
 		</div>
 		<div class="wrapper">

@@ -6,7 +6,8 @@
                     <el-input v-model="form.title" clearable placeholder="请输入标题"></el-input>
                 </el-form-item>
                 <el-form-item label="文章首图URL" prop="firstPicture">
-                    <!-- <el-input v-model="form.firstPicture" placeholder="文章首图，用于随机文章展示"></el-input> -->
+                    <el-input v-model="form.firstPicture" placeholder="文章首图，用于随机文章展示" style="width:600px;" clearable></el-input>
+                    <div style="height:20px;width:100%;"></div>
                     <file-upload className="text-left" :showFileList="true" :style="uploadStyle" :limit="1"
                         :fileUrls="form.firstPicture" @change="coverUploadSuccess" class="upload-class"></file-upload>
                 </el-form-item>
@@ -63,6 +64,9 @@
             <el-button type="primary" class="btn-right" @click="nextPage" :disabled="pageIndex==4">下一步<i
                     class="el-icon-arrow-right el-icon--right"></i></el-button>
         </div>
+        <el-backtop style="z-index:99999;border: 1px solid;">
+            <i class="el-icon-arrow-up"></i>
+        </el-backtop>
 
         <!--编辑可见性状态对话框-->
         <el-dialog title="博客可见性" width="30%" :visible.sync="dialogVisible">
