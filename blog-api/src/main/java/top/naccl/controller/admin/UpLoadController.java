@@ -32,6 +32,7 @@ public class UpLoadController {
             url = qinIuService.uploadImage(file);
         } catch (IOException e) {
             log.error("七牛云文件上传失败..[{}]", e.getMessage());
+            return Result.error("上传失败:"+e.getMessage());
         }
         return Result.ok("上传成功", url);
     }

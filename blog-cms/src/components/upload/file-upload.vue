@@ -2,14 +2,17 @@
     <div :style="styles">
         <!-- 上传文件组件 -->
         <el-upload :class="[hideUploadBtnVisable?'hide-upload-btn':'', className]" ref="upload" :action="getActionUrl"
-            :list-type="(uploadType=='1'||uploadType==1)?'text':'picture-card'" :multiple="multiple" :limit="limit"
-            :headers="myHeaders" :file-list="fileList" :on-exceed="handleExceed" :on-preview="handleUploadPreview"
-            :on-remove="handleRemove" :on-success="handleUploadSuccess" :on-error="handleUploadErr"
-            :show-file-list="showFileList" :before-upload="handleBeforeUpload">
+                   :list-type="(uploadType=='1'||uploadType==1)?'text':'picture-card'" :multiple="multiple"
+                   :limit="limit"
+                   :headers="myHeaders" :file-list="fileList" :on-exceed="handleExceed"
+                   :on-preview="handleUploadPreview" :on-change="handleChange"
+                   :on-remove="handleRemove" :before-remove="beforeRemove" :on-success="handleUploadSuccess"
+                   :on-error="handleUploadErr"
+                   :show-file-list="showFileList" :before-upload="handleBeforeUpload">
             <i class="el-icon-plus"></i>
             <!-- <span v-if="fileUrlList.length < limit">
             <span v-if="(uploadType=='1'||uploadType==1)">
-                <el-button  type="primary">点击上传</el-button> 
+                <el-button  type="primary">点击上传</el-button>
             </span>
             <span v-else>
                 <i class="el-icon-plus avatar-uploader-icon"></i>
@@ -19,9 +22,9 @@
             <img  :src="item"  style="width:100%;height:100%;">
             <div></div>
         </div> -->
-            <div slot="tip" class="el-upload__tip" style="color:#838fa1;">{{tip}}</div>
+            <div slot="tip" class="el-upload__tip" style="color:#838fa1;">{{ tip }}</div>
         </el-upload>
-        <el-dialog v-if="(uploadType!='1'||uploadType!=1)" :visible.sync="dialogVisible" size="tiny" append-to-body>
+        <el-dialog v-if="(uploadType!='1'||uploadType!=1)" :visible.sync="dialogVisible" append-to-body>
             <img width="100%" :src="dialogImageUrl" alt>
         </el-dialog>
     </div>
@@ -30,6 +33,8 @@
 export default {
     data() {
         return {
+            // 最大上传文件大小,MB
+            maxSize: 10,
             hideUploadBtnVisable: false,
             // 查看大图
             dialogVisible: false,
@@ -52,6 +57,7 @@ export default {
         "showFileList",
         "index",
         "className",
+        "maxFileSize"
     ],
     mounted() {
         this.init();
@@ -80,6 +86,13 @@ export default {
     methods: {
         // 初始化
         init() {
+            if(this.maxFileSize){
+                try {
+                    this.maxSize = Number(this.maxFileSize);
+                }catch (e) {
+                    console.log("最大上传文件大小异常",e)
+                }
+            }
             //   console.log(this.fileUrls);
             if (this.fileUrls.trim().length > 0) {
                 this.fileUrlList = this.fileUrls.split(",");
@@ -135,16 +148,30 @@ export default {
             this.$message.error("文件上传失败");
             this.hideUploadBtn();
         },
+        // 移除文件前
+        beforeRemove(file, fileList) {
+            // console.log(file,fileList)
+        },
         // 移除图片
         handleRemove(file, fileList) {
             this.setFileList(fileList);
             this.$emit("change", this.fileUrlList.join(","));
             this.hideUploadBtn();
+            // this.removeFile();
         },
         // 查看大图
         handleUploadPreview(file) {
             this.dialogImageUrl = file.url;
             this.dialogVisible = true;
+        },
+        handleChange(file, fileList, scope) {
+            console.log("选择文件",file)
+            //获取上传文件大小
+            let imgSize = Number(file.size / 1024 / 1024);
+            if (imgSize > this.maxSize) {
+                this.$message.warning(`文件大小不能超过${this.limit}MB，请重新上传`);
+                return;
+            }
         },
         // 限制图片数量
         handleExceed(files, fileList) {
@@ -170,6 +197,11 @@ export default {
             this.fileList = fileArray;
             this.fileUrlList = fileUrlArray;
         },
+        //删除图片
+        removeFile(url) {
+            this.$http.post("file/qiniu/del", {url: url}).then((resp) => {
+            });
+        },
     },
 };
 </script>
@@ -177,9 +209,11 @@ export default {
 .text-left {
     text-align: left;
 }
+
 .hide-upload-btn .el-upload--picture-card {
     display: none;
 }
+
 /*去除upload组件过渡效果*/
 .el-upload-list__item {
     transition: none !important;

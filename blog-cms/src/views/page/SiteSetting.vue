@@ -94,7 +94,7 @@
                     <div class="site-index-pic-btn">
                         <!-- 数量: -->
                         <!-- <el-input-number v-model="siteIndexPicCount" @change="siteIndexPicCountChange" :min="1" /> -->
-                        <el-upload class="upload-demo" ref="siteBanner" :action="uploadAction" :headers="httpHeaders"
+                        <el-upload class="upload-demo" ref="siteBanner" :action="uploadAction" :headers="httpHeaders" :before-upload="beforeUpload"
                             :limit="1" :on-success="siteIndexPicUploadSuccess">
                             <el-button size="small" type="primary">点击上传</el-button>
                         </el-upload>
@@ -141,6 +141,7 @@ export default {
             typeMap: {},
             httpHeaders: {},
             uploadAction: "",
+            maxSize: 9,
         };
     },
     created() {
@@ -185,6 +186,14 @@ export default {
                 }
             }
         },
+        beforeUpload(file) {
+            //获取上传文件大小
+            let imgSize = Number(file.size / 1024 / 1024);
+            if (imgSize > this.maxSize) {
+                this.$message.error(`文件大小不能超过${this.maxSize}MB，请重新上传`);
+                return false;
+            }
+        },
         siteIndexPicUploadSuccess(res, file, fileList) {
             var _this = this;
             // console.log(res, file, fileList);
@@ -209,11 +218,11 @@ export default {
                 type: "warning",
             })
                 .then(() => {
+                    const delUrl = this.siteIndexPicList[i];
                     this.siteIndexPicList.splice(i, 1);
-                    console.log("list",this.siteIndexPicList);
                     try {
                         this.typeMap.type4.forEach((item) => {
-                            if (item.nameEn == "siteIndexBannerPic") {
+                            if (item.nameEn === "siteIndexBannerPic") {
                                 item.value = _this.siteIndexPicList.join(",");
                                 throw new Error("End Loop");
                             }
@@ -221,7 +230,10 @@ export default {
                     } catch (e) {
                         console.log("end");
                     }
-                    console.log(this.typeMap.type4);
+                    // 删除图片
+                    this.$http
+                        .post("file/qiniu/del", { url: delUrl })
+                        .then((resp) => {});
                 })
                 .catch(() => {
                     // this.$message({
